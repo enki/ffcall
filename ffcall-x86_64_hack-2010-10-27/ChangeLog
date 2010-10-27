@@ -1,0 +1,292 @@
+2010-09-03  Sam Steingold  <sds@gnu.org>
+
+	* configure.in: call AC_CONFIG_AUX_DIR(build-aux)
+
+2010-09-03  Sam Steingold  <sds@gnu.org>
+
+	* Makefile.devel (gnulib-imported): also import host-cpu-c-abi
+	* avcall/configure.in, callback/configure.in:
+	* callback/trampoline_r/configure.in, callback/vacall_r/configure.in:
+	* trampoline/configure.in, vacall/configure.in:
+	use gl_HOST_CPU_C_ABI instead of FFCALL_CANONICAL_HOST_CPU
+	* m4/general.m4: remove FFCALL_CANONICAL_HOST_CPU,
+	FFCALL_CACHE_EGREP_CPP, FFCALL_SET_CPU_ABI
+	* glm4/host-cpu-c-abi.m4: add
+	* avcall/Makefile.in, callback/Makefile.in:
+	* callback/trampoline_r/Makefile.in, callback/vacall_r/Makefile.in:
+	* trampoline/Makefile.in, vacall/Makefile.in,
+	use @HOST_CPU_C_ABI@ instead of @host_cpu_abi@
+	* callback/trampoline_r/configure.in, trampoline/configure.in:
+	* m4/codeexec.m4: use $HOST_CPU_C_ABI instead of $host_cpu_abi
+
+2010-07-20  Sam Steingold  <sds@gnu.org>
+
+	* callback/trampoline_r/trampoline_r.h.in, trampoline/trampoline.h.in:
+	add autoconf CPU detection block; this fixes trampoline on sparc64/linux
+	Suggested by Valeriy E. Ushakov <uwe@netbsd.org>
+
+2010-07-20  Valeriy E. Ushakov  <uwe@netbsd.org>
+
+	https://savannah.gnu.org/bugs/?22081
+	support sparc64 for solaris & *bsd
+	* avcall/avcall-sparc64.c, avcall/avcall.h.in:
+	Kill callee (%g2). Sparc64 doesn't need that code.
+	Delete space[] - gcc optimizes it away anyway, and it doesn't
+	guarantee correct operation even if it's not removed - if compiler
+	allocs it below other local vars on the stack, then calling
+	function with enough arguments will clobber local vars.
+	Instead i've changed the code to use alloca, see the comment in
+	the code for details on why this works. It also doesn't waste 2K
+	of stack on each call, we only grab the space we actually need.
+	I nuked farg_mask. It's not necessary for float args, marking
+	them in darg_mask does the right thing (new av_float). And they
+	just hurt structure passing, where, again, marking up darg_mask
+	does the right thing.
+	* avcall/avcall-saprc64.S: Regenerated with NetBSD gcc4
+	* vacall/vacall-sparc64.S, callback/vacall_r/vacall-sparc64.S:
+	New binutils on sparc64 insist on having global registers properly
+	declared with .register. I've just added the declarations manually
+	w/out actually regenerating the files to demonstrate that's the
+	only change needed there. IF the files are regenerated with a
+	newer compiler you will get them automatically.
+
+2009-11-10  Sam Steingold  <sds@gnu.org>
+
+	* vacall/Makefile.in (vacall-armel.o): vacall-armel.s is in $(srcdir)
+	* callback/vacall_r/Makefile.in (vacall-armel.lo): ditto
+
+2009-10-16  Sam Steingold  <sds@gnu.org>
+
+	the final fix for LIBFFCALL_VERSION
+	* Makefile.devel (vacall/vacall.h.msvc, vacall/vacall.h.mingw32)
+	(callback/vacall_r/vacall_r.h.msvc)
+	(callback/vacall_r/vacall_r.h.mingw32): depend on VERSION
+	* avcall/avcall.h.in, callback/callback.h.in,
+	* callback/trampoline_r/trampoline_r.h.in, vacall/vacall.h.in,
+	* callback/vacall_r/vacall_r.h.in, trampoline/trampoline.h.in:
+	use @LIBFFCALL_VERSION@ instead of @PACKAGE_VERSION@
+	* avcall/configure.in: additional processing for avcall.h to
+	substitute @LIBFFCALL_VERSION@
+	* callback/configure.in: ditto for callback.h
+	* callback/trampoline_r/configure.in: ditto for trampoline_r.h
+	* callback/vacall_r/configure.in: ditto for vacall_r.h
+	* trampoline/configure.in: ditto for trampoline.h
+	* vacall/configure.in: ditto for vacall.h
+	* callback/vacall_r/Makefile.devel (vacall_r.h.msvc)
+	(vacall_r.h.mingw32): depend on ../../VERSION;
+	substitute @LIBFFCALL_VERSION@
+	* vacall/Makefile.devel (vacall.h.msvc, vacall.h.mingw32): depend
+	on ../VERSION; substitute @LIBFFCALL_VERSION@
+
+2009-10-16  Sam Steingold  <sds@gnu.org>
+
+	* glm4/longlong.m4, glm4/nocrash.m4: update from gnulib
+
+2009-10-16  Sam Steingold  <sds@gnu.org>
+
+	* Makefile.devel (update-gnulib): use git when available
+
+2009-10-16  Sam Steingold  <sds@gnu.org>
+
+	* avcall/configure.in, callback/configure.in,
+	* callback/trampoline_r/configure.in, callback/vacall_r/configure.in,
+	* trampoline/configure.in, vacall/configure.in: list the main generated
+	header (avcall.h et al) in AC_CONFIG_HEADERS, not in AC_CONFIG_FILES
+	fixes the bug#27706 (introduced on 2009-04-24)
+
+2009-04-28  Sam Steingold  <sds@gnu.org>
+
+	* m4/general.m4 (FFCALL_CACHE_EGREP_CPP, FFCALL_SET_CPU_ABI):
+	abstracted out of FFCALL_CANONICAL_HOST_CPU
+	(FFCALL_CANONICAL_HOST_CPU): use them
+
+2009-04-27  Max Lapan  <max.lapan@gmail.com>
+	Sam Steingold  <sds@gnu.org>
+
+	* avcall/Makefile.devel, avcall/Makefile.in, avcall/avcall.h.in,
+	* callback/trampoline_r/Makefile.devel,
+	* callback/trampoline_r/Makefile.in,
+	* callback/trampoline_r/configure.in,
+	* callback/vacall_r/Makefile.devel, callback/vacall_r/Makefile.in,
+	* callback/vacall_r/vacall_r.h.in, trampoline/Makefile.devel,
+	* trampoline/Makefile.in, trampoline/configure.in,
+	* vacall/Makefile.devel, vacall/Makefile.in, vacall/vacall.h.in:
+	Add ARMel support <https://savannah.gnu.org/bugs/?22492>
+	* m4/general.m4 (FFCALL_CANONICAL_HOST_CPU): use AC_EGREP_CPP to
+	distinguish between arm and armel
+	* avcall/avcall-armel.S, avcall/avcall-armel.c,
+	* callback/trampoline_r/cache-armel.c,
+	* callback/trampoline_r/cache-armel.s,
+	* callback/vacall_r/vacall-armel.c, callback/vacall_r/vacall-armel.s,
+	* trampoline/cache-armel.c, trampoline/cache-armel.s,
+	* vacall/vacall-armel.c, vacall/vacall-armel.s:
+	new files
+
+2009-04-27  Max Lapan  <max.lapan@gmail.com>
+
+	* avcall/tests.c, callback/tests.c, vacall/tests.c:
+	#include "config.h" for HAVE_LONG_LONG_INT
+
+2009-04-27  Max Lapan  <max.lapan@gmail.com>
+
+	* callback/trampoline_r/trampoline.c (is_tramp) [__arm__]:
+	fix bug in the last patch
+
+2009-04-24  Sam Steingold  <sds@gnu.org>
+
+	* avcall/configure.in, callback/configure.in,
+	* callback/trampoline_r/configure.in, callback/vacall_r/configure.in,
+	* trampoline/configure.in, vacall/configure.in:
+	use AC_CONFIG_FILES instead of AC_OUTPUT with argument
+	* Makefile.devel (aclocal.m4): adjust the grep regexp
+
+2009-04-24  Sam Steingold  <sds@gnu.org>
+
+	* Makefile.in, avcall/Makefile.in, callback/Makefile.in,
+	* callback/trampoline_r/Makefile.in, callback/vacall_r/Makefile.in,
+	* trampoline/Makefile.in, vacall/Makefile.in (datarootdir):
+	set to @datarootdir@ to avoid a configure warning
+
+2009-04-24  Sam Steingold  <sds@gnu.org>
+
+	* Makefile.devel (SUBDIRS_CONFIG_H): add avcall and callback
+
+2009-04-24  Sam Steingold  <sds@gnu.org>
+
+	* VERSION: new file
+	* configure.in: use AC_INIT with the version argument
+	* avcall/Makefile.mingw32: use sed to set LIBFFCALL_VERSION in avcall.h
+	* callback/vacall_r/Makefile.mingw32:
+	use sed to set LIBFFCALL_VERSION in vacall_r.h
+	* vacall/Makefile.mingw32: use sed to set LIBFFCALL_VERSION in vacall.h
+	* avcall/avcall.h.in, callback/callback.h.in,
+	* callback/trampoline_r/trampoline_r.h.in,
+	* callback/vacall_r/vacall_r.h.in,
+	* trampoline/trampoline.h.in, vacall/vacall.h.in:
+	(LIBFFCALL_VERSION): define to @PACKAGE_VERSION@
+	* avcall/configure.in, callback/configure.in,
+	* callback/trampoline_r/configure.in, callback/vacall_r/configure.in,
+	* trampoline/configure.in, vacall/configure.in:
+	use AC_INIT with the version argument,
+	pass [config.h] to AC_CONFIG_HEADERS
+
+2009-04-23  Sam Steingold  <sds@gnu.org>
+
+	* m4/codeexec.m4, m4/ireg.m4, m4/pccstruct.m4, m4/smallstruct.m4:
+	all 3 arguments of AC_DEFINE are now required
+
+2009-04-21  Sam Steingold  <sds@gnu.org>
+
+	* m4/as-underscore.m4, m4/codeexec.m4, m4/general.m4:
+	* m4/getpagesize.m4, m4/ireg.m4, m4/mach-vm.m4, m4/mmap.m4:
+	* m4/mprotect.m4, m4/pccstruct.m4, m4/shm.m4, m4/smallstruct.m4:
+	quote AC_DEFINE arguments
+
+2008-09-28  Sam Steingold  <sds@gnu.org>
+
+	* Makefile.devel (aclocal.m4): include glm4 (this defined gl_EARLY
+	and gl_INIT and fixes make check on x86_64)
+
+2008-09-26  Sam Steingold  <sds@gnu.org>
+
+	* avcall/avcall-ia64.s, avcall/avcall.h.in:
+	* callback/vacall_r/vacall_r.h.in:
+	support IA64 on Linux (kernel 2.6.16+ and gcc 4.1.0+)
+	https://savannah.gnu.org/bugs/index.php?22130
+	http://sourceforge.net/tracker/index.php?func=detail&aid=1528895&group_id=1355&atid=301355
+
+2008-09-26  Sam Steingold  <sds@gnu.org>
+
+	* callback/trampoline_r/Makefile.in, callback/trampoline_r/cache-arm.c:
+	* callback/trampoline_r/cache-arm.s, callback/trampoline_r/configure.in:
+	* callback/trampoline_r/tramp-arm.s, callback/trampoline_r/tramp-mips.s:
+	* callback/trampoline_r/trampoline.c, trampoline/cache-arm.c:
+	* trampoline/cache-arm.s, trampoline/configure.in:
+	* trampoline/tramp-arm.s, trampoline/trampoline.c:
+	add arm support from Jonathan Olson (debian 1.10-2)
+	https://savannah.gnu.org/bugs/?func=detailitem&item_id=9468
+
+2008-09-26  Sam Steingold  <sds@gnu.org>
+
+	* avcall/avcall-mips.S, avcall/avcall-mips.c, avcall/avcall.h.in:
+	* callback/trampoline_r/trampoline.c, callback/vacall_r/vacall_r.h.in:
+	* m4/general.m4, trampoline/trampoline.c, vacall/vacall.h.in:
+	add mipsel support from Thiemo Seufer (debian 1.10-2)
+
+2008-09-26  Sam Steingold  <sds@gnu.org>
+
+	* Makefile.devel, Makefile.in, callback/Makefile.devel,
+	* callback/Makefile.in: use "&&" instead of ";" for all targets
+
+2008-07-13  Sam Steingold  <sds@gnu.org>
+
+	* glm4/gnulib-cache.m4, glm4/gnulib-common.m4, glm4/gnulib-comp.m4:
+	* glm4/gnulib-tool.m4, glm4/onceonly.m4: add from gnulib
+	* glm4/nocrash.m4: update from gnulib
+	* Makefile.devel (gnulib-imported): remove gllib
+	* configure.ac: call gl_EARLY and gl_INIT
+
+2008-07-08  Sam Steingold  <sds@gnu.org>
+
+	* Makefile.devel (SUBDIRS_CONFIGURE): use $(CURDIR) instead of .
+	(%/configure): use "&&" instead of ";"
+
+2008-07-03  Sam Steingold  <sds@gnu.org>
+
+	* Makefile.devel (all): split into a few manageable targets
+	(config-h-in, woe32-h, woe32-c): new targets
+	(configure): use patterns
+
+2008-07-03  Sam Steingold  <sds@gnu.org>
+
+	* m4/smallstruct.m4 (FFCALL_SMALL_STRUCT_RETURN): rename from
+	CL_SMALL_STRUCT_RETURN; use ffcall_cv_* instead of cl_cv_*;
+	use return instead of exit()
+	* m4/pccstruct.m4 (FFCALL_PCC_STRUCT_RETURN): rename from
+	CL_PCC_STRUCT_RETURN; use ffcall_cv_* instead of cl_cv_*;
+	use return instead of exit()
+	* m4/ireg.m4 (FFCALL_IREG_FLOAT_RETURN): remame from
+	CL_IREG_FLOAT_RETURN; use ffcall_cv_* instead of cl_cv_*;
+	use return instead of exit()
+	* m4/codeexec.m4 (FFCALL_CODEEXEC): rename from CL_CODEEXEC
+	use ffcall_cv_* instead of cl_cv_*; use return instead of exit()
+	* m4/general.m4: remove non-FFCALL code
+	(FFCALL_COMMON_LIBTOOL): rename from CL_FFCALL_COMMON_LIBTOOL
+	(FFCALL_COMMON_TRAMPOLINE): rename from CL_FFCALL_COMMON_TRAMPOLINE
+	(FFCALL_CANONICAL_HOST_CPU): <- CL_CANONICAL_HOST_CPU_FOR_FFCALL
+
+2008-07-03  Sam Steingold  <sds@gnu.org>
+
+	* Makefile.devel (build-aux-update): new target
+
+2008-07-02  Sam Steingold  <sds@gnu.org>
+
+	* Makefile.devel (gnulib-imported, update-gnulib): new targets
+	* glm4: new directory
+	* longlong.m4, nocrash.m4: move from m4 to glm4
+
+2008-07-02  Sam Steingold  <sds@gnu.org>
+
+	* m4/ln.m4: update from clisp
+	* m4/cp.m4: remove
+	* m4/getpagesize.m4: update from clisp
+	* m4/general.m4: update from clisp
+	* m4/mmap.m4: update from clisp
+	* m4/mprotect.m4: update from clisp
+	* m4/proto.m4: update from clisp
+	* m4/openflags.m4: remove
+	* m4/cc-void.m4: remove
+
+2008-07-02  Sam Steingold  <sds@gnu.org>
+
+	* Makefile.devel, aclocal.m4: move autoconf/aclocal.m4 to aclocal.m4
+	* aclocal/autoconf.m4: remove
+	* Makefile.devel (CLISP_DIR): remove
+
+2008-07-02  Sam Steingold  <sds@gnu.org>
+
+	* m4/ffcall-pccstruct.m4, m4/ffcall-smallstruct.m4, m4/ffcall-ireg.m4:
+	* m4/ffcall-codeexec.m4: remove "ffcall-" prefix
+	* Makefile.devel: update
+
+See clisp ChangeLog for earlier changes.

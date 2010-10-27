@@ -1,0 +1,104 @@
+ffcall - foreign function call libraries
+
+This is a collection of four libraries which can be used to build
+foreign function call interfaces in embedded interpreters.
+
+The four packages are:
+
+    avcall - calling C functions with variable arguments
+
+    vacall - C functions accepting variable argument prototypes
+
+    trampoline - closures as first-class C functions
+
+    callback - closures with variable arguments as first-class C functions
+               (a reentrant combination of vacall and trampoline)
+
+
+Installation instructions:
+
+        mkdir make
+        cd make
+        ./configure --cache-file=config.cache
+        make
+        make check
+        make install
+
+
+Note: you should be able to build with --enable-shared,
+but it makes no sense to do so:
+
+1) it is overkill: libavcall, libvacall, libcallback have less than 1 KB
+   of executable code (most of the real code is in the header files):
+
+$ size libavcall.a
+  text    data     bss     dec     hex filename
+   420       0       0     420     1a4 avcall.o (ex libavcall.a)
+    81       0       0      81      51 structcpy.o (ex libavcall.a)
+$ size libvacall.a
+  text    data     bss     dec     hex filename
+   365       0       0     365     16d vacall.o (ex libvacall.a)
+   203       0       0     203      cb misc.o (ex libvacall.a)
+    81       0       0      81      51 structcpy.o (ex libvacall.a)
+$ size libcallback.a
+  text    data     bss     dec     hex filename
+   379       0       0     379     17b vacall.o (ex libcallback.a)
+   203       0       0     203      cb misc.o (ex libcallback.a)
+    81       0       0      81      51 structcpy.o (ex libcallback.a)
+   287       0       0     287     11f trampoline.o (ex libcallback.a)
+
+When a shared library is loaded, you spend at least 4 KB for its code,
+data and BSS. This is overkill for such a tiny library.
+
+2) The main function here is compiled from non-PIC assembly language.
+   I.e. relocations would remain. The GNU linker supports shared libraries
+   with relocations on x86 systems. But only on x86!
+
+
+Files in this package:
+
+    Documentation:
+
+        README          this text
+        COPYING         free software license
+        PLATFORMS       list of supported platforms
+
+    Source:
+
+        avcall/*        the avcall package
+        vacall/*        the vacall package
+        trampoline/*    the trampoline package
+        callback/*      the callback package
+
+    Installation:
+
+        configure       configuration script
+        configure.in    autoconf-2.60 source for the configuration script
+        autoconf/*      auxiliary configuration scripts
+        Makefile.in     Makefile master
+
+
+Copyright notice:
+
+Copyright 1995-2004 Bruno Haible, <bruno@clisp.org>
+Copyright 2000 Adam Fedor <fedor@gnu.org>
+Copyright 2004 Paul Guyot <pguyot@kallisys.net>
+
+This is free software distributed under the GNU General Public Licence
+described in the file COPYING. Contact the author if you don't have this
+or can't live with it. There is ABSOLUTELY NO WARRANTY, explicit or implied,
+on this software.
+
+
+Distribution:
+
+CVS:
+$ cvs -z3 -d:pserver:anonymous@cvs.savannah.gnu.org:/sources/libffcall co ffcall
+
+Bug reports to:
+
+  https://savannah.gnu.org/bugs/?func=additem&group=libffcall
+
+Homepage:
+
+  http://www.gnu.org/software/libffcall/
